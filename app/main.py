@@ -1,16 +1,27 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from . import models, schemas, auth, database
+from app.routers import users
+from fastapi.openapi.docs import get_swagger_ui_html
 
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(users.router, prefix="/users", tags=["users"])
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello Gomoku!"}
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_ui_parameters={"persistAuthorization": True}
+    )
 
 origins = ["*"]
 app.add_middleware(
@@ -19,14 +30,14 @@ app.add_middleware(
 )
 
 @app.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
+def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="用户名已存在")
     return auth.create_user(user, db)
 
 @app.post("/login", response_model=schemas.Token)
-def login(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
+def login(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = auth.authenticate_user(user.username, user.password, db)
     if not db_user:
         raise HTTPException(status_code=401, detail="用户名或密码错误")

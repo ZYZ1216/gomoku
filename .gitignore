@@ -16,3 +16,9 @@ venv.bak/
 # Python
 __pycache__/
 *.py[cod]
+
+# image
+
+static/avatars/*.jpg
+static/avatars/*.jpeg
+static/avatars/*.png
