@@ -8,10 +8,18 @@ from fastapi.openapi.docs import get_swagger_ui_html
 
 models.Base.metadata.create_all(bind=database.engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="Gomoku API",
+    description="五子棋项目后端接口",
+    version="0.1.0",
+    openapi_tags=[
+        {"name": "用户相关", "description": "用户信息、头像上传、获取用户详情等"},
+    ]
+)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.include_router(users.router, prefix="/users", tags=["users"])
+# app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(users.router)
 
 
 @app.get("/docs", include_in_schema=False)
