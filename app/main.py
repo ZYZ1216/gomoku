@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from . import models, schemas, auth, database
-from app.routers import users
+from app.routers import users, rooms
 from fastapi.openapi.docs import get_swagger_ui_html
 
 models.Base.metadata.create_all(bind=database.engine)
@@ -20,6 +20,7 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 # app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(users.router)
+app.include_router(rooms.router)
 
 
 @app.get("/docs", include_in_schema=False)
