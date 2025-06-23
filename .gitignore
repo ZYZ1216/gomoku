@@ -22,3 +22,6 @@ __pycache__/
 static/avatars/*.jpg
 static/avatars/*.jpeg
 static/avatars/*.png
+
+#database
+gomoku.db
