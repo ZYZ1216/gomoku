@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from . import models, schemas, auth, database
-from app.routers import users, rooms
+from app.routers import users, rooms, game
 from fastapi.openapi.docs import get_swagger_ui_html
 
 models.Base.metadata.create_all(bind=database.engine)
@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(users.router)
 app.include_router(rooms.router)
-
+app.include_router(game.router)
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
